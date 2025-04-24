@@ -1,0 +1,161 @@
+---
+title: "PROBLEM_SET_2"
+author: "QUINTERO"
+date: "`r Sys.Date()`"
+output: github_document
+---
+
+### Problem 1 — Internet Use and GDP
+
+### (a) Find the least squares line for the data, that is, use statistical software to find the intercept and slope of the least squares line, and write out the equation of that line.
+
+```{r}
+data <- read.csv("C:\\Users\\sbcvj\\Downloads\\internet.csv")
+head(data)
+
+### Equation: Internet users = 12.36278 + 1.36093 * Gdp
+```
+
+```{r}
+data.regression <- lm(Int ~ Gdp, data=data)
+summary(data.regression)
+```
+
+
+
+### (b) Interpret the estimates of the slope and the intercept in the context of the problem.
+
+#### 1. Intercept
+
+##### = There are 12.36278 estimated percentage of internet users in a country with 0% Gdp per capita
+
+#### 2. Slope
+
+##### = for every additional $1000 in GDP per capita, the percentage of internet users in a country increases in by 1.36093
+
+
+
+### (c) Predict the percentage of Internet users if GDP per capita is $20,000.
+```{r}
+predict(data.regression, newdata = data.frame(Gdp = 20))
+```
+##### The predicted percentage of internet users is approximately 39.58%
+
+
+### (d) Draw a scatterplot with Int on the vertical axis and Gdp on the horizontal axis, and add the least squares line to the plot.
+
+```{r}
+plot(data$Gdp,data$Int,col="blue")
+abline(data.regression,col="red",lwd=2)
+
+```
+
+
+
+
+### (e) Based on the scatterplot, do you think it is appropriate to use this simple linearregression model in this problem, or is the model potentially misleading (and if so,how)?
+
+##### = The scatterplot shows a positive relationship between Int and Gdp. However, it could potentially misleading because of the non-linearity and potenital outliers. As you can see in the plot, in lower GDP, some countries have high Int eventhough the GDP is low. And another factor, when you look at the plot in High Gdp, int levels are near at the top. And lastly, we can observe in high Gdp, there are points that are far from the trend line which could skew the model.
+
+
+### Problem 2 — Movie Data and Box Office Receipts
+
+
+
+### (a) Write out a regression equation for a multiple linear regression model for predicting response Box from just three predictors: Rate, User, and Meta.
+
+
+```{r}
+df <- read.csv("C:\\Users\\sbcvj\\Downloads\\movies.csv")
+head(df)
+```
+
+```{r}
+df.regression <- lm(Box ~ Rate + User + Meta, data=df)
+summary(df.regression)
+```
+
+
+
+### (b) Interpret the estimated regression parameter for Rate in the context of the problem.
+
+##### As we can see in the summary, holding the constant of meta and user, for every 1 pt increase in rate, it predicts 35.5 million dollars in box office. And having the p value of 0.076 percent which is higher than 0.05. We could say that it is marginally significant.
+
+
+
+### (c) Look at the graph produced by the ”plot” function to do assumption checks for the model in item (a).
+
+```{r}
+plot(df.regression)
+```
+
+#### Residuals Vs Fitted Plot
+##### The points are normal for some, however the trend line are curve which means that it is possibly not linear. And also, if we observed some points, there are outliers
+
+#### Q-Q Plot
+##### Most points are lie within the 45 degree dashed line which means it is good. However, some points diverge from the line. This indicates that it is having a mild deviation from normal because of some outliers.
+
+#### Scale-Location Plot
+##### The trend line goes upward at higher fitted values because of the increases of variance. And in the points, 17,2, and 3 are the outlier stands out.
+
+#### Residuals Vs Leverage Plot
+##### As we can see, 6, 17, and 2, are near at the cook distance which indicates that these points are influential in the model.
+
+
+
+### (d) Use statistical software to fit the following complete model for Box as a function of all six predictor variables :
+
+```{r}
+#Fitting of full model
+movies_full_model <- lm(Box ~ Rate + User + Meta + Len + Win + Nom, data=df)
+```
+
+```{r}
+#getting the residual sum
+rss <- sum(resid(movies_full_model)^2)
+rss
+```
+
+##### The residual sum of the full model is 32435.31
+
+
+
+### (e) Use statistical software to fit the following reduced model:
+
+```{r}
+#getting the residual sum
+rss_reduced <- sum(resid(df.regression)^2)
+rss_reduced
+```
+
+##### The residual sum of the reduced model is 32822.96
+
+
+
+### (f) Another way to see whether we should prefer the reduced model for this example is to see whether the regression standard error (s) is smaller for the reduced model than for the complete model and whether adjusted R2 is higher for the reduced model than the complete model. Confirm whether these relationships hold in this example (i.e., compare the values of s and adjusted R2 in the reduced and complete models). 
+
+```{r}
+summary_full <- summary(movies_full_model)
+summary_reduced <- summary(df.regression)
+
+#getting the residual standard error and adjusted r-squared
+
+#full model
+s_full_rse <- summary_full$sigma
+s_full_rsquared <- summary_full$adj.r.squared
+
+#reduced model
+s_reduced_rse <- summary_reduced$sigma
+s_reduced_rsquared <- summary_reduced$adj.r.squared
+
+#FULL MODEL
+cat("RSE of full model:",s_full_rse, "\n") 
+cat("Adjusted r squared of full model:",s_full_rsquared, "\n") 
+
+#REDUCED MODEL
+cat("RSE of reduced model:",s_reduced_rse, "\n") 
+cat("Adjusted r squared of reduced model:",s_reduced_rsquared, "\n") 
+```
+##### Even though the RSS of reduced model is slightly higher than the full model. Another way to check it is to get the RSE and Adjusted R-squared. So preferring reduced model than the full model, reduced model should have smaller RSE than the full model and it should have higher Adjusted R-squared than the full model. In this case, by getting their RSE and Adjusted R-squared, we can conclude that the reduced model is preffered.
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
